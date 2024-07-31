@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+    <title>機器管理</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>機器管理</h1>
+    <table>
+        <tr>
+            <th>機器</th>
+            <th>代幣數量</th>
+            <th>夾一次所需硬幣</th>
+            <th>Action</th>
+        </tr>
+        {% for machine in machines %}
+        <tr>
+            <td>{{ machine.name }}</td>
+            <td>{{ loop.index }}</td>
+            <td>{{ machine.quantity }}</td>
+            <td>
+                <a href="{{ url_for('edit', machine_id=machine.id) }}">修改</a>
+                <a href="{{ url_for('delete', machine_id=machine.id) }}" onclick="return confirmDelete()">刪除</a>
+            </td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="2">總計</td>
+            <td>{{ total_quantity }}</td>
+            <td></td>
+        </tr>
+    </table>
+    <a href="{{ url_for('add') }}">新增機器</a>
+
+    <script>
+        function confirmDelete() {
+            return confirm("確定要刪除這個機器嗎？");
+        }
+    </script>
+</body>
+</html>
