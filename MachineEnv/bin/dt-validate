@@ -1,0 +1,164 @@
+#!/Users/alanlin/Desktop/Machine-management/MachineEnv/bin/python3
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright 2018 Linaro Ltd.
+# Copyright 2018 Arm Ltd.
+
+import signal
+
+def sigint_handler(signum, frame):
+    sys.exit(-2)
+
+signal.signal(signal.SIGINT, sigint_handler)
+
+import sys
+import os
+import ruamel.yaml
+import jsonschema
+import argparse
+import glob
+
+import dtschema
+
+verbose = False
+show_unmatched = False
+
+class schema_group():
+    def __init__(self, schema_file=""):
+        self.schemas = list()
+
+        if schema_file == "" or os.path.isdir(schema_file):
+            self.schemas = dtschema.process_schemas([schema_file])
+        elif os.path.isfile(schema_file):
+            self.schemas = dtschema.load_schema(os.path.abspath(schema_file))
+            dtschema.set_schema(self.schemas)
+        else:
+            exit(-1)
+
+    def check_node(self, tree, node, nodename, fullname, filename):
+        # Skip any generated nodes
+        node['$nodename'] = [ nodename ]
+        node_matched = False
+        matched_schemas = []
+        for schema in self.schemas:
+            if schema['$select_validator'].is_valid(node):
+                # We have a match if a conditional schema is selected
+                if schema['select'] != True:
+                    matched_schemas.append(schema['$id'])
+                    node_matched = True
+                try:
+                    errors = sorted(dtschema.DTValidator(schema).iter_errors(node), key=lambda e: e.linecol)
+                    for error in errors:
+
+                        # Disabled nodes might not have all the required
+                        # properties filled in, such as a regulator or a
+                        # GPIO meant to be filled at the DTS level on
+                        # boards using that particular node. Thus, if the
+                        # node is marked as disabled, let's just ignore
+                        # any error message reporting a missing property.
+                        if isinstance(error.instance, dict) and \
+                           'status' in error.instance and \
+                           'disabled' in error.instance['status']:
+                            if 'required property' in error.message:
+                                continue
+                            elif error.context:
+                                for e in error.context:
+                                    if not 'required property' in e.message:
+                                        break
+                                else:
+                                    continue
+
+                        if schema['$id'] == 'generated-compatibles':
+                            if show_unmatched < 1:
+                                continue
+                            if isinstance(node, ruamel.yaml.comments.CommentedBase):
+                                line = node.lc.line
+                                col = node.lc.col
+                            else:
+                                line = 0
+                                col = 0
+                            print("%s:%i:%i: %s: failed to match any schema with compatible: %s" %
+                                  (filename, line, col, fullname, node['compatible']), file=sys.stderr)
+                            continue
+
+                        print(dtschema.format_error(filename, error, nodename=nodename, verbose=verbose) +
+                            '\n\tFrom schema: ' + schema['$filename'],
+                            file=sys.stderr)
+                except RecursionError as e:
+                    print(ap.prog + ": recursion error: Check for prior errors in a referenced schema", file=sys.stderr)
+
+        if show_matched and matched_schemas:
+            print("%s: %s: matched on schema(s)\n\t" % (filename, fullname) +
+                '\n\t'.join(matched_schemas), file=sys.stderr)
+
+        if show_unmatched >= 2 and not node_matched:
+            print("%s: %s: failed to match any schema" % (filename, fullname), file=sys.stderr)
+
+    def check_subtree(self, tree, subtree, nodename, fullname, filename):
+        if nodename.startswith('__'):
+            return
+        self.check_node(tree, subtree, nodename, fullname, filename)
+        if fullname != "/":
+            fullname += "/"
+        for name,value in subtree.items():
+            if isinstance(value, dict):
+                self.check_subtree(tree, value, name, fullname + name, filename)
+
+    def check_trees(self, filename, dt):
+        """Check the given DT against all schemas"""
+
+        for schema in self.schemas:
+            schema["$select_validator"] = dtschema.DTValidator(schema['select'])
+
+        for subtree in dt:
+            self.check_subtree(dt, subtree, "/", "/", filename)
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser(fromfile_prefix_chars='@',
+        epilog='Arguments can also be passed in a file prefixed with a "@" character.')
+    ap.add_argument("yamldt", nargs='*',
+                    help="Filename or directory of YAML encoded devicetree input file(s)")
+    ap.add_argument('-s', '--schema', help="path to additional additional schema files")
+    ap.add_argument('-p', '--preparse', help="preparsed schema file")
+    ap.add_argument('-m', '--show-unmatched', default=0,
+        help="Print out nodes which don't match any schema.\n" \
+             "Once for only nodes with 'compatible'\n" \
+             "Twice for all nodes", action="count")
+    ap.add_argument('-M', '--show-matched',
+        help="Print out matching schema for each node", action="store_true")
+    ap.add_argument('-n', '--line-number', help="Print line and column numbers (slower)", action="store_true")
+    ap.add_argument('-v', '--verbose', help="verbose mode", action="store_true")
+    ap.add_argument('-u', '--url-path', help="Additional search path for references")
+    ap.add_argument('-V', '--version', help="Print version number",
+                    action="version", version=dtschema.__version__)
+    args = ap.parse_args()
+
+    verbose = args.verbose
+    show_unmatched = args.show_unmatched
+    show_matched = args.show_matched
+
+    if args.url_path:
+        dtschema.add_schema_path(args.url_path)
+
+    if args.preparse:
+        sg = schema_group(args.preparse)
+    elif args.schema:
+        sg = schema_group(args.schema)
+    else:
+        sg = schema_group()
+
+    for d in args.yamldt:
+        if not os.path.isdir(d):
+            continue
+        for filename in glob.iglob(d + "/**/*.yaml", recursive=True):
+            testtree = dtschema.load(filename, line_number=args.line_number)
+            if verbose:
+                print("Check:  " + filename)
+            sg.check_trees(filename, testtree)
+
+    for filename in args.yamldt:
+        if not os.path.isfile(filename):
+            continue
+        testtree = dtschema.load(filename, line_number=args.line_number)
+        if verbose:
+            print("Check:  " + filename)
+        sg.check_trees(filename, testtree)

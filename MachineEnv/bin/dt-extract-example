@@ -1,0 +1,62 @@
+#!/Users/alanlin/Desktop/Machine-management/MachineEnv/bin/python3
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright 2018 Linaro Ltd.
+# Copyright 2019 Arm Ltd.
+
+import os
+import re
+import sys
+import ruamel.yaml
+import argparse
+
+example_template = """
+    example-{example_num} {{
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        {example}
+    }};
+}};
+"""
+
+example_header = """
+/dts-v1/;
+/plugin/; // silence any missing phandle references
+"""
+example_start = """
+/{
+    compatible = "foo";
+    model = "foo";
+    interrupt-parent = <&foo>;
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+"""
+
+yaml = ruamel.yaml.YAML(typ='safe')
+
+if __name__ == "__main__":
+    ex = '// empty'
+    ap = argparse.ArgumentParser()
+    ap.add_argument("yamlfile", type=str,
+                    help="Filename of YAML encoded schema input file")
+    args = ap.parse_args()
+
+    binding = yaml.load(open(args.yamlfile, encoding='utf-8').read())
+
+    print(example_header)
+
+    if 'examples' in binding.keys():
+        for idx,ex in enumerate(binding['examples']):
+            # Check if example contains a root node "/{"
+            root_node = re.search('^/\s*{', ex)
+
+            if not root_node:
+                print(example_start)
+                ex = '        '.join(ex.splitlines(True))
+                print(example_template.format(example=ex,example_num=idx))
+            else:
+                print(ex)
+    else:
+        print(example_start)
+        print("\n};")
