@@ -1,14 +1,18 @@
 <!doctype html>
-<html>
+<html lang="zh-TW">
 <head>
+    <meta charset="UTF-8">
     <title>新增機器</title>
 </head>
 <body>
     <h1>新增機器</h1>
     <form method="post">
-        機器名稱: <input type="text" name="name"><br>
-        夾一次所需硬幣: <input type="text" name="quantity"><br>
+        <label for="name">機器名稱:</label>
+        <input type="text" id="name" name="name" required><br>
+        <label for="quantity">每一次所需硬幣:</label>
+        <input type="number" id="quantity" name="quantity" required><br>
         <input type="submit" value="送出">
     </form>
+    <a href="{{ url_for('index') }}">取消</a>
 </body>
 </html>

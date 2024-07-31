@@ -1,6 +1,7 @@
 <!doctype html>
-<html>
+<html lang="zh-TW">
 <head>
+    <meta charset="UTF-8">
     <title>機器管理</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -19,8 +20,8 @@
             <td>{{ loop.index }}</td>
             <td>{{ machine.quantity }}</td>
             <td>
-                <a href="{{ url_for('edit', machine_id=machine.id) }}">修改</a>
-                <a href="{{ url_for('delete', machine_id=machine.id) }}" onclick="return confirmDelete()">刪除</a>
+                <a href="{{ url_for('edit_machine', machine_id=machine.id) }}">修改</a>
+                <a href="{{ url_for('delete_machine', machine_id=machine.id) }}" onclick="return confirmDelete()">刪除</a>
             </td>
         </tr>
         {% endfor %}
@@ -30,8 +31,10 @@
             <td></td>
         </tr>
     </table>
-    <a href="{{ url_for('add') }}">新增機器</a>
-
+    <a href="{{ url_for('add_machine') }}">新增機器</a>
+    <a href="{{ url_for('export_data') }}">匯出資料</a>
+    <a href="{{ url_for('import_data') }}">匯入資料</a>
+    
     <script>
         function confirmDelete() {
             return confirm("確定要刪除這個機器嗎？");
