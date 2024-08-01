@@ -87,6 +87,10 @@ def import_data():
         return redirect(url_for('index'))
     return render_template('import.html')
 
+@app.route('/purchase_cost')
+def purchase_cost():
+    return render_template('purchase_cost.html')
+
 if __name__ == '__main__':
     create_tables()
     app.run(debug=True)
