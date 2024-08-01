@@ -2,11 +2,59 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>進貨與成本管理</title>
+    <title>進貨與成本</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>進貨與成本管理</h1>
-    <!-- 添加進貨與成本管理相關內容 -->
-    <a href="{{ url_for('index') }}">返回主頁</a>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>管理系統</h2>
+        </div>
+        <a href="{{ url_for('index') }}">機器管理</a>
+        <a href="{{ url_for('purchase_cost') }}" class="active">進貨與成本</a>
+        <a href="{{ url_for('revenue') }}">營收</a>
+        <a href="{{ url_for('member_management') }}">會員資料管理</a>
+    </div>
+    <div class="content">
+        <h1>進貨量與成本</h1>
+        <table>
+            <tr>
+                <th>日期</th>
+                <th>商品名稱</th>
+                <th>進貨量（包）</th>
+                <th>該次進貨價</th>
+                <th>Action</th>
+            </tr>
+            {% for purchase in purchases %}
+            <tr>
+                <td>{{ purchase.date }}</td>
+                <td>{{ purchase.product_name }}</td>
+                <td>{{ purchase.quantity }}</td>
+                <td>{{ purchase.cost }}</td>
+                <td>
+                    <a href="{{ url_for('edit_purchase', purchase_id=purchase.id) }}">修改</a>
+                    <a href="{{ url_for('delete_purchase', purchase_id=purchase.id) }}" style="color: red;" onclick="return confirmDelete()">刪除</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <h2>新增進貨紀錄</h2>
+        <form method="post">
+            <label for="date">日期:</label>
+            <input type="date" id="date" name="date" required><br>
+            <label for="product_name">商品名稱:</label>
+            <input type="text" id="product_name" name="product_name" required><br>
+            <label for="quantity">進貨量（包）:</label>
+            <input type="number" id="quantity" name="quantity" required><br>
+            <label for="cost">該次進貨價:</label>
+            <input type="number" id="cost" name="cost" required><br>
+            <input type="submit" value="送出">
+        </form>
+    </div>
+    <script>
+        function confirmDelete() {
+            return confirm("確定要刪除這個紀錄嗎？");
+        }
+    </script>
 </body>
 </html>

@@ -15,6 +15,13 @@ class Machine(db.Model):
     name = db.Column(db.String(50), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
+class Purchase(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(50), nullable=False)
+    product_name = db.Column(db.String(50), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    cost = db.Column(db.Integer, nullable=False)
+
 # 初始化資料庫
 def create_tables():
     with app.app_context():
@@ -87,9 +94,38 @@ def import_data():
         return redirect(url_for('index'))
     return render_template('import.html')
 
-@app.route('/purchase_cost')
+@app.route('/purchase_cost', methods=['GET', 'POST'])
 def purchase_cost():
-    return render_template('purchase_cost.html')
+    if request.method == 'POST':
+        date = request.form['date']
+        product_name = request.form['product_name']
+        quantity = request.form['quantity']
+        cost = request.form['cost']
+        new_purchase = Purchase(date=date, product_name=product_name, quantity=int(quantity), cost=int(cost))
+        db.session.add(new_purchase)
+        db.session.commit()
+        return redirect(url_for('purchase_cost'))
+    purchases = Purchase.query.all()
+    return render_template('purchase_cost.html', purchases=purchases)
+
+@app.route('/edit_purchase/<int:purchase_id>', methods=['GET', 'POST'])
+def edit_purchase(purchase_id):
+    purchase = Purchase.query.get_or_404(purchase_id)
+    if request.method == 'POST':
+        purchase.date = request.form['date']
+        purchase.product_name = request.form['product_name']
+        purchase.quantity = int(request.form['quantity'])
+        purchase.cost = int(request.form['cost'])
+        db.session.commit()
+        return redirect(url_for('purchase_cost'))
+    return render_template('edit_purchase.html', purchase=purchase)
+
+@app.route('/delete_purchase/<int:purchase_id>')
+def delete_purchase(purchase_id):
+    purchase = Purchase.query.get_or_404(purchase_id)
+    db.session.delete(purchase)
+    db.session.commit()
+    return redirect(url_for('purchase_cost'))
 
 @app.route('/revenue')
 def revenue():
