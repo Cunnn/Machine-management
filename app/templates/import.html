@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>匯入機器資料</title>
+</head>
+<body>
+    <h1>匯入機器資料</h1>
+    <form method="post" enctype="multipart/form-data">
+        <label for="file">選擇 CSV 文件:</label>
+        <input type="file" id="file" name="file" accept=".csv" required><br>
+        <input type="submit" value="上傳">
+    </form>
+    <a href="{{ url_for('index') }}">取消</a>
+</body>
+</html>
