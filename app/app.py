@@ -95,6 +95,10 @@ def purchase_cost():
 def revenue():
     return render_template('revenue.html')
 
+@app.route('/member_management')
+def member_management():
+    return render_template('member_management.html')
+
 if __name__ == '__main__':
     create_tables()
     app.run(debug=True)
