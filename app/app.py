@@ -22,6 +22,12 @@ class Purchase(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     cost = db.Column(db.Integer, nullable=False)
 
+class Member(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    level = db.Column(db.String(50), nullable=False)
+    accumulated_points = db.Column(db.Integer, nullable=False)
+
 # 初始化資料庫
 def create_tables():
     with app.app_context():
@@ -127,13 +133,40 @@ def delete_purchase(purchase_id):
     db.session.commit()
     return redirect(url_for('purchase_cost'))
 
+@app.route('/member_management', methods=['GET', 'POST'])
+def member_management():
+    if request.method == 'POST':
+        name = request.form['name']
+        level = request.form['level']
+        accumulated_points = request.form['accumulated_points']
+        new_member = Member(name=name, level=level, accumulated_points=int(accumulated_points))
+        db.session.add(new_member)
+        db.session.commit()
+        return redirect(url_for('member_management'))
+    members = Member.query.all()
+    return render_template('member_management.html', members=members)
+
+@app.route('/edit_member/<int:member_id>', methods=['GET', 'POST'])
+def edit_member(member_id):
+    member = Member.query.get_or_404(member_id)
+    if request.method == 'POST':
+        member.name = request.form['name']
+        member.level = request.form['level']
+        member.accumulated_points = int(request.form['accumulated_points'])
+        db.session.commit()
+        return redirect(url_for('member_management'))
+    return render_template('edit_member.html', member=member)
+
+@app.route('/delete_member/<int:member_id>')
+def delete_member(member_id):
+    member = Member.query.get_or_404(member_id)
+    db.session.delete(member)
+    db.session.commit()
+    return redirect(url_for('member_management'))
+
 @app.route('/revenue')
 def revenue():
     return render_template('revenue.html')
-
-@app.route('/member_management')
-def member_management():
-    return render_template('member_management.html')
 
 if __name__ == '__main__':
     create_tables()

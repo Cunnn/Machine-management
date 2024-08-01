@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>修改會員資料</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>管理系統</h2>
+        </div>
+        <a href="{{ url_for('index') }}">機器管理</a>
+        <a href="{{ url_for('purchase_cost') }}">進貨與成本</a>
+        <a href="{{ url_for('revenue') }}">營收</a>
+        <a href="{{ url_for('member_management') }}" class="active">會員資料管理</a>
+    </div>
+    <div class="content">
+        <h1>修改會員資料</h1>
+        <form method="post">
+            <label for="name">會員名稱:</label>
+            <input type="text" id="name" name="name" value="{{ member.name }}" required><br>
+            <label for="level">會員卡等級:</label>
+            <input type="text" id="level" name="level" value="{{ member.level }}" required><br>
+            <label for="accumulated_points">累計儲值金:</label>
+            <input type="number" id="accumulated_points" name="accumulated_points" value="{{ member.accumulated_points }}" required><br>
+            <input type="submit" value="送出">
+        </form>
+        <a href="{{ url_for('member_management') }}">取消</a>
+    </div>
+    <script>
+        function confirmDelete() {
+            return confirm("確定要刪除這個會員嗎？");
+        }
+    </script>
+</body>
+</html>

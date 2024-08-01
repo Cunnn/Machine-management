@@ -3,10 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <title>會員資料管理</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>會員資料管理</h1>
-    <!-- 添加會員資料管理相關內容 -->
-    <a href="{{ url_for('index') }}">返回主頁</a>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>管理系統</h2>
+        </div>
+        <a href="{{ url_for('index') }}">機器管理</a>
+        <a href="{{ url_for('purchase_cost') }}">進貨與成本</a>
+        <a href="{{ url_for('revenue') }}">營收</a>
+        <a href="{{ url_for('member_management') }}" class="active">會員資料管理</a>
+    </div>
+    <div class="content">
+        <h1>會員資料管理</h1>
+        <table>
+            <tr>
+                <th>會員ID</th>
+                <th>會員名稱</th>
+                <th>會員卡等級</th>
+                <th>累計儲值金</th>
+                <th>Action</th>
+            </tr>
+            {% for member in members %}
+            <tr>
+                <td>{{ member.id }}</td>
+                <td>{{ member.name }}</td>
+                <td>{{ member.level }}</td>
+                <td>{{ member.accumulated_points }}</td>
+                <td>
+                    <a href="{{ url_for('edit_member', member_id=member.id) }}">修改</a>
+                    <a href="{{ url_for('delete_member', member_id=member.id) }}" style="color: red;" onclick="return confirmDelete()">刪除</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <h2>新增會員資料</h2>
+        <form method="post">
+            <label for="name">會員名稱:</label>
+            <input type="text" id="name" name="name" required><br>
+            <label for="level">會員卡等級:</label>
+            <input type="text" id="level" name="level" required><br>
+            <label for="accumulated_points">累計儲值金:</label>
+            <input type="number" id="accumulated_points" name="accumulated_points" required><br>
+            <input type="submit" value="送出">
+        </form>
+    </div>
+    <script>
+        function confirmDelete() {
+            return confirm("確定要刪除這個會員嗎？");
+        }
+    </script>
 </body>
 </html>
