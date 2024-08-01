@@ -1,3 +1,7 @@
+Release version. 0.1.0
+
+---
+
 倒出安裝環境
 
 $ pip freeze > requirements.txt
