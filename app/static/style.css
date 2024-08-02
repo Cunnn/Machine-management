@@ -1,17 +1,187 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh; /* 確保body佔滿視窗高度 */
+    background-color: #f8f9fa;
+}
+
+/* 左側導航欄樣式 */
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50; /* 導航欄背景色 */
+    color: white; /* 文本顏色 */
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* 項目左對齊 */
+    padding-top: 20px;
+}
+
+.sidebar-header {
+    width: 100%;
+    padding: 20px;
+    text-align: left; /* 文本左對齊 */
+    font-size: 16px; /* 字體大小 */
+    font-weight: bold;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    color: white; /* 改變文本顏色為白色 */
+    padding: 15px 20px; /* 添加填充以進行左對齊 */
+    text-decoration: none;
+    width: 80%;
+    text-align: left;
+    font-size: 14px; /* 字體大小 */
+    transition: background-color 0.3s ease;
+}
+
+.sidebar a:hover, .sidebar a.active {
+    background-color: #34495e; /* 懸停和活動狀態的背景色 */
+    color: white; /* 確保懸停和活動狀態的文本顏色為白色 */
+    width: 80%; /* 添加寬度屬性，確保其佔滿整個導航欄 */
+}
+
+.sidebar a img {
+    margin-right: 10px; /* 在圖標和文本之間添加空間 */
+}
+
+/* 主內容區域樣式 */
+.content {
+    margin-left: 270px; /* 創建導航欄和內容之間的間距 */
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto; /* 如果內容溢出，允許滾動 */
+    background-color: #f8f9fa;
+}
+
+/* 機器管理表格樣式 */
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 table, th, td {
-    border: 1px solid black;
-}
-
-th, td {
-    padding: 10px;
+    border: 1px solid #ddd;
+    padding: 15px;
     text-align: left;
 }
 
-a {
+th, td {
+    padding: 15px;
+    text-align: left;
+}
+
+th {
+    font-weight: bold;
+    text-align: center;
+}
+
+td {
+    text-align: center;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+.actions {
+    margin-top: 20px;
+}
+
+.actions a {
     margin-right: 10px;
+    color: blue;
+    text-decoration: none;
+}
+
+.actions a:hover {
+    text-decoration: underline;
+}
+
+h1 {
+    margin-top: 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* 新增進貨紀錄表單樣式 */
+form {
+    display: flex;
+    flex-direction: column;
+    width: 300px; /* 限制表單寬度 */
+}
+
+form label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+form label span {
+    flex-basis: 40%; /* 占據左邊部分空間 */
+    text-align: left;
+}
+
+form input {
+    flex-basis: 60%; /* 占據右邊部分空間 */
+    margin-left: 10px;
+    text-align: right; /* 右對齊 */
+}
+
+form input[type="date"] {
+    flex-basis: 60%; /* 確保日期輸入框寬度一致 */
+}
+
+form input[type="submit"] {
+    width: auto;
+    align-self: flex-start;
+    margin-top: 10px;
+    text-align: center; /* 中間對齊 */
+}
+
+/* 新增會員資料表單樣式 */
+.member-form {
+    display: flex;
+    flex-direction: column;
+    width: 300px; /* 限制表單寬度 */
+}
+
+.member-form label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.member-form label span {
+    flex-basis: 40%; /* 占據左邊部分空間 */
+    text-align: left;
+}
+
+.member-form input {
+    flex-basis: 60%; /* 占據右邊部分空間 */
+    margin-left: 10px;
+    text-align: right; /* 右對齊 */
+}
+
+.member-form input[type="submit"] {
+    width: auto;
+    align-self: flex-start;
+    margin-top: 10px;
+    text-align: center; /* 中間對齊 */
 }

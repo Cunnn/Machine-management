@@ -2,11 +2,69 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>進貨與成本管理</title>
+    <title>進貨與成本</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>進貨與成本管理</h1>
-    <!-- 添加進貨與成本管理相關內容 -->
-    <a href="{{ url_for('index') }}">返回主頁</a>
-</body>
-</html>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            管理系統
+        </div>
+        <a href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='icons/machine.png') }}" alt="機器管理圖標" width="20" height="20"> 
+            機器管理
+        </a>
+        <a href="{{ url_for('purchase_cost') }}" class="active">
+            <img src="{{ url_for('static', filename='icons/purchase.png') }}" alt="進貨與成本圖標" width="20" height="20"> 
+            進貨與成本
+        </a>
+        <a href="{{ url_for('revenue') }}">
+            <img src="{{ url_for('static', filename='icons/revenue.png') }}" alt="營收圖標" width="20" height="20"> 
+            營收
+        </a>
+        <a href="{{ url_for('member_management') }}">
+            <img src="{{ url_for('static', filename='icons/member.png') }}" alt="會員資料管理圖標" width="20" height="20"> 
+            會員資料管理
+        </a>
+    </div>
+    <div class="content">
+        <h1>進貨量與成本</h1>
+        <table>
+            <tr>
+                <th>日期</th>
+                <th>商品名稱</th>
+                <th>進貨量（包）</th>
+                <th>該次進貨價</th>
+                <th>Action</th>
+            </tr>
+            {% for purchase in purchases %}
+            <tr>
+                <td>{{ purchase.date }}</td>
+                <td>{{ purchase.product_name }}</td>
+                <td>{{ purchase.quantity }}</td>
+                <td>{{ purchase.cost }}</td>
+                <td>
+                    <a href="{{ url_for('edit_purchase', purchase_id=purchase.id) }}">修改</a>
+                    <a href="{{ url_for('delete_purchase', purchase_id=purchase.id) }}" style="color: red;" onclick="return confirmDelete()">刪除</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <h2>新增進貨紀錄</h2>
+        <form method="post">
+            <label for="date"><span>日期:</span>
+                <input type="date" id="date" name="date" required>
+            </label>
+            <label for="product_name"><span>商品名稱:</span>
+                <input type="text" id="product_name" name="product_name" required>
+            </label>
+            <label for="quantity"><span>進貨量（包）:</span>
+                <input type="number" id="quantity" name="quantity" required>
+            </label>
+            <label for="cost"><span>該次進貨價:</span>
+                <input type="number" id="cost" name="cost" required>
+            </label>
+            <input type="submit" value="送出">
+        </form>
+    </div>
+    <script>
